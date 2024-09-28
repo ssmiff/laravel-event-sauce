@@ -14,7 +14,6 @@ use EventSauce\EventSourcing\MessageRepository;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Ssmiff\LaravelEventSauce\Exceptions\AggregateRootRepositoryException;
-use Ssmiff\LaravelEventSauce\Factories\LaravelMessageRepositoryFactory;
 
 abstract class AggregateRootRepository implements BaseAggregateRootRepository
 {
@@ -32,7 +31,7 @@ abstract class AggregateRootRepository implements BaseAggregateRootRepository
 
     protected ?MessageDecorator $messageDecorator = null;
 
-    public function __construct(private readonly LaravelMessageRepositoryFactory $messageRepositoryFactory)
+    public function __construct(private readonly MessageRepositoryFactory $messageRepositoryFactory)
     {
     }
 

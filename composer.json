@@ -21,7 +21,9 @@
     "eventsauce/id-encoding": "^1.0",
     "illuminate/container": "^11.25",
     "illuminate/config": "^11.25",
-    "illuminate/database": "^11.25"
+    "illuminate/database": "^11.25",
+    "eventsauce/message-repository-for-illuminate": "^1.2",
+    "league/tactician": "^1.1"
   },
   "require-dev": {
     "phpunit/phpunit": "^11.3",

@@ -14,7 +14,7 @@ use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Ssmiff\LaravelEventSauce\AggregateRootRepository;
-use Ssmiff\LaravelEventSauce\Factories\LaravelMessageRepositoryFactory;
+use Ssmiff\LaravelEventSauce\MessageRepositoryFactory;
 use Ssmiff\LaravelEventSauce\Test\test_mocks\NopMessageDecorator;
 use Ssmiff\LaravelEventSauce\Test\test_mocks\UserAggregateRoot;
 use Ssmiff\LaravelEventSauce\Test\test_mocks\UserChangedPasswordEvent;
@@ -28,9 +28,9 @@ class AggregateRootRepositoryTest extends TestCase
     {
         $messageRepository = new InMemoryMessageRepository();
 
-        /** @var LaravelMessageRepositoryFactory $mockLaravelMessageRepositoryFactory */
-        $mockLaravelMessageRepositoryFactory = Mockery::mock(
-            LaravelMessageRepositoryFactory::class,
+        /** @var MessageRepositoryFactory $mockMessageRepositoryFactory */
+        $mockMessageRepositoryFactory = Mockery::mock(
+            MessageRepositoryFactory::class,
             fn(MockInterface $mock) => $mock
                 ->expects('buildMessageRepository')
                 ->with(
@@ -41,7 +41,7 @@ class AggregateRootRepositoryTest extends TestCase
                 ->andReturn($messageRepository)
         );
 
-        $aggregateRootRepository = new class($mockLaravelMessageRepositoryFactory) extends AggregateRootRepository {
+        $aggregateRootRepository = new class($mockMessageRepositoryFactory) extends AggregateRootRepository {
             protected string $aggregateRootClassName = UserAggregateRoot::class;
             protected ?string $connectionName = 'my-connection-name';
             protected string $tableName = 'my_domain_messages';
@@ -76,7 +76,7 @@ class AggregateRootRepositoryTest extends TestCase
         $this->assertInstanceOf(UserId::class, $message->aggregateRootId());
         $this->assertSame('123', $message->aggregateRootId()->toString());
         $this->assertSame(
-            'ssmiff.laravel_event_sauce.test\test_classes.user_aggregate_root',
+            'ssmiff.laravel_event_sauce.test\test_mocks.user_aggregate_root',
             $message->aggregateRootType()
         );
         $this->assertSame(1, $message->aggregateVersion());
@@ -87,9 +87,9 @@ class AggregateRootRepositoryTest extends TestCase
     {
         $messageRepository = new InMemoryMessageRepository();
 
-        /** @var LaravelMessageRepositoryFactory $mockLaravelMessageRepositoryFactory */
-        $mockLaravelMessageRepositoryFactory = Mockery::mock(
-            LaravelMessageRepositoryFactory::class,
+        /** @var MessageRepositoryFactory $mockMessageRepositoryFactory */
+        $mockMessageRepositoryFactory = Mockery::mock(
+            MessageRepositoryFactory::class,
             fn(MockInterface $mock) => $mock
                 ->expects('buildMessageRepository')
                 ->with(
@@ -100,7 +100,7 @@ class AggregateRootRepositoryTest extends TestCase
                 ->andReturn($messageRepository)
         );
 
-        $aggregateRootRepository = new class($mockLaravelMessageRepositoryFactory) extends AggregateRootRepository {
+        $aggregateRootRepository = new class($mockMessageRepositoryFactory) extends AggregateRootRepository {
             protected string $aggregateRootClassName = UserAggregateRoot::class;
             protected ?string $connectionName = 'my-connection-name';
             protected string $tableName = 'my_domain_messages';
@@ -121,7 +121,7 @@ class AggregateRootRepositoryTest extends TestCase
             ->withHeader(Header::AGGREGATE_ROOT_ID, $userId)
             ->withHeader(
                 Header::AGGREGATE_ROOT_TYPE,
-                'ssmiff.laravel_event_sauce.test\test_classes.user_aggregate_root'
+                'ssmiff.laravel_event_sauce.test\test_mocks.user_aggregate_root'
             );
         $messageRepository->persist($fakeMessage);
 
@@ -147,7 +147,7 @@ class AggregateRootRepositoryTest extends TestCase
         $this->assertInstanceOf(UserId::class, $message->aggregateRootId());
         $this->assertSame('123', $message->aggregateRootId()->toString());
         $this->assertSame(
-            'ssmiff.laravel_event_sauce.test\test_classes.user_aggregate_root',
+            'ssmiff.laravel_event_sauce.test\test_mocks.user_aggregate_root',
             $message->aggregateRootType()
         );
         $this->assertSame(1, $message->aggregateVersion());
@@ -162,7 +162,7 @@ class AggregateRootRepositoryTest extends TestCase
         $this->assertInstanceOf(UserId::class, $message->aggregateRootId());
         $this->assertSame('123', $message->aggregateRootId()->toString());
         $this->assertSame(
-            'ssmiff.laravel_event_sauce.test\test_classes.user_aggregate_root',
+            'ssmiff.laravel_event_sauce.test\test_mocks.user_aggregate_root',
             $message->aggregateRootType()
         );
         $this->assertSame(2, $message->aggregateVersion());
@@ -173,9 +173,9 @@ class AggregateRootRepositoryTest extends TestCase
     {
         $messageRepository = new InMemoryMessageRepository();
 
-        /** @var LaravelMessageRepositoryFactory $mockLaravelMessageRepositoryFactory */
-        $mockLaravelMessageRepositoryFactory = Mockery::mock(
-            LaravelMessageRepositoryFactory::class,
+        /** @var MessageRepositoryFactory $mockMessageRepositoryFactory */
+        $mockMessageRepositoryFactory = Mockery::mock(
+            MessageRepositoryFactory::class,
             fn(MockInterface $mock) => $mock
                 ->expects('buildMessageRepository')
                 ->with(
@@ -189,11 +189,11 @@ class AggregateRootRepositoryTest extends TestCase
         $dispatcher = new CollectingMessageDispatcher();
 
         $aggregateRootRepository = new class(
-            $mockLaravelMessageRepositoryFactory,
+            $mockMessageRepositoryFactory,
             $dispatcher
         ) extends AggregateRootRepository {
             public function __construct(
-                LaravelMessageRepositoryFactory $messageRepositoryFactory,
+                MessageRepositoryFactory $messageRepositoryFactory,
                 private readonly MessageDispatcher $dispatcher
             ) {
                 parent::__construct($messageRepositoryFactory);

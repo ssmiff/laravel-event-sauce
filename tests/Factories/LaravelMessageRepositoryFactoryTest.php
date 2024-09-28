@@ -8,6 +8,7 @@ use Closure;
 use EventSauce\EventSourcing\MessageRepository;
 use EventSauce\EventSourcing\Serialization\ConstructingMessageSerializer;
 use EventSauce\IdEncoding\StringIdEncoder;
+use EventSauce\MessageRepository\IlluminateMessageRepository\IlluminateMessageRepository;
 use Illuminate\Config\Repository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Connection;
@@ -15,7 +16,7 @@ use Illuminate\Database\DatabaseManager;
 use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\Test;
-use Ssmiff\LaravelEventSauce\Factories\LaravelMessageRepositoryFactory;
+use Ssmiff\LaravelEventSauce\Factories\IlluminateMessageRepositoryFactory;
 use Ssmiff\LaravelEventSauce\Test\TestCase;
 
 class LaravelMessageRepositoryFactoryTest extends TestCase
@@ -38,10 +39,9 @@ class LaravelMessageRepositoryFactoryTest extends TestCase
                 $mock
                     ->expects('get')
                     ->with('config')
-                    ->times(3)
+                    ->times(2)
                     ->andReturn(
                         new Repository([
-                            'eventsauce' => ['message_repository' => 'DummyMessageRepository'],
                             'database' => ['default' => 'default-database'],
                         ])
                     );
@@ -56,7 +56,7 @@ class LaravelMessageRepositoryFactoryTest extends TestCase
                     ->withArgs(
                         fn (...$args) =>
                             2 == count($args)
-                            && 'DummyMessageRepository' == $args[0]
+                            && IlluminateMessageRepository::class == $args[0]
                             && is_array($args[1])
                             && $mockConnection == $args[1]['connection']
                             && $args[1]['tableName'] === 'domain_messages'
@@ -67,7 +67,7 @@ class LaravelMessageRepositoryFactoryTest extends TestCase
             }
         );
 
-        $this->assertInstanceOf(MessageRepository::class, $factory->buildMessageRepository());
+        $this->assertInstanceOf(MessageRepository::class, $factory->build());
     }
 
     #[Test]
@@ -88,11 +88,10 @@ class LaravelMessageRepositoryFactoryTest extends TestCase
                 $mock
                     ->expects('get')
                     ->with('config')
-                    ->times(2)
+                    ->times(1)
                     ->andReturn(
                         new Repository([
                             'eventsauce' => [
-                                'message_repository' => 'DummyMessageRepository',
                                 'database_connection' => 'default-database2'
                             ],
                         ])
@@ -108,7 +107,7 @@ class LaravelMessageRepositoryFactoryTest extends TestCase
                     ->withArgs(
                         fn (...$args) =>
                             2 == count($args)
-                            && 'DummyMessageRepository' == $args[0]
+                            && IlluminateMessageRepository::class == $args[0]
                             && is_array($args[1])
                             && $mockConnection == $args[1]['connection']
                             && $args[1]['tableName'] === 'domain_messages'
@@ -119,7 +118,7 @@ class LaravelMessageRepositoryFactoryTest extends TestCase
             }
         );
 
-        $this->assertInstanceOf(MessageRepository::class, $factory->buildMessageRepository());
+        $this->assertInstanceOf(MessageRepository::class, $factory->build());
     }
 
     #[Test]
@@ -147,7 +146,7 @@ class LaravelMessageRepositoryFactoryTest extends TestCase
                     ->withArgs(
                         fn (...$args) =>
                             2 == count($args)
-                            && 'DummyRepositoryByParameter' == $args[0]
+                            && IlluminateMessageRepository::class == $args[0]
                             && is_array($args[1])
                             && $mockConnection == $args[1]['connection']
                             && $args[1]['tableName'] === 'dummy_table_name'
@@ -160,19 +159,18 @@ class LaravelMessageRepositoryFactoryTest extends TestCase
 
         $this->assertInstanceOf(
             MessageRepository::class,
-            $factory->buildMessageRepository(
-                'DummyRepositoryByParameter',
+            $factory->build(
                 'dummy-connection',
                 'dummy_table_name',
             )
         );
     }
 
-    private function createFactory(Closure $mockContainer): LaravelMessageRepositoryFactory
+    private function createFactory(Closure $mockContainer): IlluminateMessageRepositoryFactory
     {
         /** @var Container $container */
         $container = Mockery::mock(Container::class, $mockContainer);
 
-        return new LaravelMessageRepositoryFactory($container);
+        return new IlluminateMessageRepositoryFactory($container);
     }
 }

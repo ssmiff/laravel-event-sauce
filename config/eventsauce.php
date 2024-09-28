@@ -13,7 +13,7 @@ return [
      * This class will be used to store messages.
      *
      * You may change this to any class that implements
-     * \EventSauce\EventSourcing\MessageRepository
+     * \Ssmiff\LaravelEventSauce\MessageRepositoryFactory
      */
-    'message_repository' => \EventSauce\MessageRepository\IlluminateMessageRepository\IlluminateMessageRepository::class,
+    'message_repository_factory' => \Ssmiff\LaravelEventSauce\Factories\IlluminateMessageRepositoryFactory::class,
 ];
